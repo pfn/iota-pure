@@ -6,7 +6,7 @@ crossScalaVersions += "2.10.6"
 
 javacOptions in Global ++= "-target" :: "1.7" :: "-source" :: "1.7" :: Nil
 
-libraryDependencies ++= "com.hanhuy.android" %% "iota" % "1.0.2" ::
+libraryDependencies ++= "com.hanhuy.android" %% "iota" % "1.0.4-SNAPSHOT" ::
   "com.android.support" % "support-v4" % "23.1.1" % "provided" ::
   Nil
 

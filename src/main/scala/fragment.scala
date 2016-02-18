@@ -72,7 +72,6 @@ trait PureFragment[S] extends android.app.Fragment with PureFragmentBase[S] {
   }
 
   final override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle) = {
-    super.onCreateView(inflater, container, savedInstanceState)
     val (view, st) = applyState(OnCreateView(state, inflater, container)).perform()
     state = st
     view
@@ -153,7 +152,6 @@ trait PureFragmentCompat[S] extends android.support.v4.app.Fragment with PureFra
   }
 
   final override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle) = {
-    super.onCreateView(inflater, container, savedInstanceState)
     val (view, st) = applyState(OnCreateView(state, inflater, container)).perform()
     state = st
     view

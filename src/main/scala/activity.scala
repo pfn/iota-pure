@@ -20,6 +20,7 @@ trait PureActivity[S] extends Activity {
     val zero = false
     def applyResult(io: IO[Boolean]): IO[(Boolean,S)] = io map (b => b -> state)
   }
+  case class OnPreCreate(state: S)                     extends ActivityStateUnit
   case class OnCreate(state: S)                        extends ActivityStateUnit
   case class OnDestroy(state: S)                       extends ActivityStateUnit
   case class OnStart(state: S)                         extends ActivityStateUnit
@@ -40,8 +41,9 @@ trait PureActivity[S] extends Activity {
   def defaultApplyState[T](s: ActivityState[T]): IO[(T,S)] = IO(s.zero -> s.state)
 
   final override def onCreate(savedInstanceState: Bundle) = {
+    state = applyState(OnPreCreate(initialState(Option(savedInstanceState)))).perform()._2
     super.onCreate(savedInstanceState)
-    state = applyState(OnCreate(initialState(Option(savedInstanceState)))).perform()._2
+    state = applyState(OnCreate(state)).perform()._2
   }
 
   final override def onCreateOptionsMenu(m: Menu): Boolean = {
