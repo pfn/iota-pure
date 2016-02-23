@@ -33,8 +33,9 @@ trait PureActivity[S] extends Activity {
   case class SaveState(state: S, bundle: Bundle)       extends ActivityStateUnit
 
   def initialState(b: Option[Bundle]): S
-  def transformState(f: S => S): IO[Unit] = IO {
+  def transformState(f: S => S): IO[S] = IO {
     state = applyState(TransformState(f(state),state)).perform()._2
+    state
   }
 
   def applyState[T](s: ActivityState[T]): IO[(T,S)]

@@ -1,6 +1,7 @@
 package iota.pure
 
 import android.annotation.TargetApi
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view._
@@ -39,8 +40,9 @@ private[pure] trait PureFragmentBase[S] {
   case class OnOptionsItemSelected(state: S, item: MenuItem) extends FragmentStateBoolean
 
   def initialState(savedState: Option[Bundle], arguments: Option[Bundle]): S
-  def transformState(f: S => S): IO[Unit] = IO {
+  def transformState(f: S => S): IO[S] = IO {
     state = applyState(TransformState(f(state),state)).perform()._2
+    state
   }
 
   def applyState[T](s: FragmentState[T]): IO[(T,S)]
@@ -54,7 +56,7 @@ trait PureFragment[S] extends android.app.Fragment with PureFragmentBase[S] {
     state = applyState(OnActivityCreated(state)).perform()._2
   }
 
-  final override def onAttach(context: Context) = {
+  final override def onAttach(context: Activity) = {
     super.onAttach(context)
     state = applyState(OnAttach(state)).perform()._2
   }
