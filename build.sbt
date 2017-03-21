@@ -1,4 +1,4 @@
-android.Plugin.androidBuildJar
+enablePlugins(AndroidJar)
 
 scalaVersion in Global := "2.11.7"
 
@@ -6,7 +6,7 @@ crossScalaVersions += "2.10.6"
 
 javacOptions in Global ++= "-target" :: "1.7" :: "-source" :: "1.7" :: Nil
 
-libraryDependencies ++= "com.hanhuy.android" %% "iota" % "1.0.4" ::
+libraryDependencies ++= "com.hanhuy.android" %% "iota" % "2.0.0-RC2" ::
   "org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided" ::
   "com.android.support" % "support-v4" % "23.1.1" % "provided" ::
   Nil
@@ -17,9 +17,9 @@ organization := "com.hanhuy.android"
 
 sonatypeProfileName := "com.hanhuy"
 
-version := "0.1"
+version := "0.2-SNAPSHOT"
 
-platformTarget in Android := "android-23"
+platformTarget in Android := "android-25"
 
 // sonatype publishing options follow
 publishMavenStyle := true

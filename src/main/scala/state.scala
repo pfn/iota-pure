@@ -1,6 +1,6 @@
 package iota.pure
 
-import iota.IO
+import iota.effect.IO
 
 private[pure] trait PureState[T,S] {
   val state: S

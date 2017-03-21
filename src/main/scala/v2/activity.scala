@@ -1,9 +1,8 @@
-package iota.pure
+package iota.pure.v2
 
 import android.app.Activity
 import android.os.Bundle
 import android.view._
-import iota.effect.IO
 
 /** beware:
   * https://youtrack.jetbrains.com/issue/SCL-9888
@@ -14,11 +13,9 @@ trait PureActivity[S] extends Activity {
   sealed trait ActivityState[T] extends PureState[T,S]
   trait ActivityStateUnit extends ActivityState[Unit] {
     val zero = ()
-    def applyResult(io: IO[Unit]): IO[(Unit,S)] = apply(io)
   }
   trait ActivityStateBoolean extends ActivityState[Boolean] {
     val zero = false
-    def applyResult(io: IO[Boolean]): IO[(Boolean,S)] = io map (b => b -> state)
   }
   case class OnPreCreate(state: S)                     extends ActivityStateUnit
   case class OnCreate(state: S)                        extends ActivityStateUnit
@@ -33,61 +30,62 @@ trait PureActivity[S] extends Activity {
   case class SaveState(state: S, bundle: Bundle)       extends ActivityStateUnit
 
   def initialState(b: Option[Bundle]): S
-  def transformState(f: S => S): IO[S] = IO {
-    state = applyState(TransformState(f(state),state)).perform()._2
+  def applyState[T]: PartialFunction[ActivityState[T],(T,S)]
+  def transformState(f: S => S): S = {
+    state = doApplyState(TransformState(f(state),state))._2
     state
   }
 
-  def applyState[T](s: ActivityState[T]): IO[(T,S)]
-  def defaultApplyState[T](s: ActivityState[T]): IO[(T,S)] = IO(s.zero -> s.state)
+  private[this] def doApplyState[T](s: ActivityState[T]): (T,S) =
+    applyState[T].applyOrElse(s, defaultApplyState[T])
+  def defaultApplyState[T](s: ActivityState[T]): (T,S) = s.zero -> s.state
 
   final override def onCreate(savedInstanceState: Bundle) = {
-    state = applyState(OnPreCreate(initialState(Option(savedInstanceState)))).perform()._2
+    state = doApplyState(OnPreCreate(initialState(Option(savedInstanceState))))._2
     super.onCreate(savedInstanceState)
-    state = applyState(OnCreate(state)).perform()._2
+    state = doApplyState(OnCreate(state))._2
   }
 
   final override def onCreateOptionsMenu(m: Menu): Boolean = {
     val b = super.onCreateOptionsMenu(m)
-    val (r,st) = applyState(OnCreateOptionsMenu(state, m)).perform()
+    val (r,st) = doApplyState(OnCreateOptionsMenu(state, m))
     state = st
     b || r
   }
 
   override def onOptionsItemSelected(item: MenuItem) = {
-    val (r,st) = applyState(OnOptionsItemSelected(state, item)).perform()
+    val (r,st) = doApplyState(OnOptionsItemSelected(state, item))
     state = st
     r || super.onOptionsItemSelected(item)
   }
 
   final override def onSaveInstanceState(outState: Bundle) = {
     super.onSaveInstanceState(outState)
-    state = applyState(SaveState(state, outState)).perform()._2
+    state = doApplyState(SaveState(state, outState))._2
   }
 
   final override def onStart() = {
     super.onStart()
-    state = applyState(OnStart(state)).perform()._2
+    state = doApplyState(OnStart(state))._2
   }
 
   final override def onResume() = {
     super.onResume()
-    state = applyState(OnResume(state)).perform()._2
+    state = doApplyState(OnResume(state))._2
   }
 
   final override def onPause() = {
     super.onPause()
-    state = applyState(OnPause(state)).perform()._2
+    state = doApplyState(OnPause(state))._2
   }
 
   final override def onStop() = {
     super.onStop()
-    state = applyState(OnStop(state)).perform()._2
+    state = doApplyState(OnStop(state))._2
   }
 
   final override def onDestroy() = {
     super.onDestroy()
-    state = applyState(OnDestroy(state)).perform()._2
+    state = doApplyState(OnDestroy(state))._2
   }
 }
-
