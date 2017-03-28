@@ -17,7 +17,7 @@ organization := "com.hanhuy.android"
 
 sonatypeProfileName := "com.hanhuy"
 
-version := "0.2-SNAPSHOT"
+version := "0.2"
 
 platformTarget in Android := "android-25"
 
