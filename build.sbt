@@ -2,8 +2,6 @@ enablePlugins(AndroidJar)
 
 scalaVersion in Global := "2.11.7"
 
-crossScalaVersions += "2.10.6"
-
 javacOptions in Global ++= "-target" :: "1.7" :: "-source" :: "1.7" :: Nil
 
 libraryDependencies ++= "com.hanhuy.android" %% "iota" % "2.0.0-RC3" ::
